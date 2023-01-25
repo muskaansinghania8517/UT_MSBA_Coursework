@@ -1,0 +1,402 @@
+---
+title: 'Individual Assignment #2'
+Name: Muskaan Singhania
+EID: ms88283
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+editor_options:
+  markdown:
+    wrap: 72
+---
+
+------------------------------------------------------------------------
+
+<center>
+
+## Assignment #2: ARIMA Laboratory
+
+### Name: Muskaan Singhania
+
+### EID: ms88283
+
+#### Due: Nov. 29 (Before Class)
+
+#### (40 points)
+
+</center>
+
+------------------------------------------------------------------------
+
+### Part I. Estimating Growth Potential and Capacity Utilization
+
+Suppose you are working for a firm in the restaurant business looking
+into the possibility of starting operations in Australia. Your company
+has already narrowed its focus to five states: (i) Queensland, (ii)
+Victoria, (iii) New South Wales, (iv) Western Australia, and (v) the
+Australian Capital Territory. The decision of locations to start
+operations depend on two factors:
+
+(A) **Growth Potential:** More than the size of the market itself, the
+    firm is interested in starting operations in locations with high
+    growth rates. The reasoning behind this decision is that it is
+    easier to gain a foothold in a market that is growing than in one
+    that is stagnant.
+
+(B) **Demand Variability:** There are two dimensions to demand
+    variability. First, the change in mean demand from month to month
+    over the year, i.e., the seasonality; and second, the volatility of
+    the demand within each season. This is important as high levels of
+    seasonality and high levels of uncertainty lead to reduced expected
+    expected levels of capacity utilization and lower cash flows from
+    operation.
+
+To aid your analysis, we include in the code box below an ETS analysis
+of the sales (turnover) of the aggregate restaurant industry in each
+state. Please base your answers to question (1) and (2) on the results
+obtained by the analysis below.
+
+```{r, warning=FALSE, echo=FALSE, results = FALSE, message=FALSE}
+library(fpp3)
+```
+
+```{r warning=FALSE}
+R <- aus_retail %>%
+  filter(Industry == "Cafes, restaurants and takeaway food services", 
+         State == "Australian Capital Territory"|
+           State == "Queensland" |
+           State == "Victoria" |
+           State == "Western Australia" |
+           State == "New South Wales" ) %>%
+  mutate(Sales = Turnover) %>%
+  select(State, Sales)
+
+R %>% autoplot(.var = Sales)
+
+m <- R %>% model(me = ETS(Sales))
+
+MC <- m %>% components() 
+
+MC %>% filter(State == "Australian Capital Territory") %>% filter(Month >= ym("2017 Dec"))
+MC %>% filter(State == "Queensland") %>% filter(Month >= ym("2017 Dec"))
+MC %>% filter(State == "New South Wales") %>% filter(Month >= ym("2017 Dec"))
+MC %>% filter(State == "Western Australia") %>% filter(Month >= ym("2017 Dec"))
+MC %>% filter(State == "Victoria") %>% filter(Month >= ym("2017 Dec"))
+
+MC %>% filter(State == "Australian Capital Territory") %>% autoplot()
+MC %>% filter(State == "Queensland") %>% autoplot()
+MC %>% filter(State == "New South Wales") %>% autoplot()
+MC %>% filter(State == "Western Australia") %>% autoplot()
+MC %>% filter(State == "Victoria") %>% autoplot()
+```
+
+1.  **What is the type of growth estimated by the models above for each
+    state?**
+
+Ans: Growth type for the aforementioned states are:
+
+**Queensland**\
+Model: ETS(M,Ad,M)\
+Growth Type: Multiplicative error, Additive damped trend and
+Multiplicative seasonality
+
+**New South Wales**\
+Model: ETS(M,A,M)\
+Growth Type: Multiplicative error, Additive trend and Multiplicative
+Seasonality
+
+**Western Australia**\
+Model: ETS(M,A,M)\
+Growth Type: Multiplicative error, Additive trend and Multiplicative
+Seasonality
+
+**Australian Capital Territory**\
+Model: ETS(M,A,M)\
+Growth Type: Multiplicative error, Additive trend and Multiplicative
+Seasonality
+
+**Victoria** \
+Model: ETS(M,Ad,M) \
+Growth Type: Multiplicative error, Additive damped trend and
+Multiplicative Seasonality
+
+2.  **What are the values of the growth parameters (for each state) at
+    the end of analysis period**?
+
+Ans: The following are the values of the growth parameters:
+
+**Queensland\
+**Level: 709.308\
+Trend: 0.118\
+Seasonality: 1.110
+
+**New South Wales\
+**Level: 1332.941\
+Trend: 3.468\
+Seasonality: 1.141
+
+**Western Australia\
+**Level: 483.581\
+Trend: 1.186\
+Seasonality: 1.069
+
+**Australian Capital Territory\
+**Level: 65.415\
+Trend: 0.168\
+Seasonality: 1.097
+
+**Victoria** \
+Level: 946.492\
+Trend: 2.269\
+Seasonality: 1.134
+
+3.  What is the growth rate (expressed as a percentage) of sales
+    experienced by each state over the last twelve months? Calculate
+    this as the percent change in the de-seasonalized level of demand
+    estimated over the last twelve months.
+
+```{r warning=FALSE}
+MC %>%                                   
+  group_by(State) %>%
+  mutate(growth_rate = ((level / lag(level,12)) -1)*100) %>%
+  filter(Month == ym("2018 Dec")) %>%
+  as_tibble %>%
+  select(State, growth_rate) -> mc_growth
+
+mc_growth
+```
+
+4.  One measure of operational risk is the effect of variability of mean
+    demand from season to season on capacity utilization. A simple way
+    to estimate this is to calculate for each of the five states
+    $D_{MAX} = \max_m D_m$ where the index $m$ takes values
+    corresponding to the last twelve months. That is, $D_{MAX}$ is the
+    maximum mean level of demand fitted for the last twelve months. Then
+    calculate the monthly metric of mean-forecast-based capacity
+    utilization for each month as
+    $$ U_m = \frac{D_m}{D_{MAX}} \times 100,$$ then, using the monthly
+    mean-based capacity utilization obtain the average
+    mean-forecast-based utilization as $MU = mean(U_m)$ Report the
+    utilization calculation for each of the five states. Summarize your
+    analysis of sales growth potential and mean-variability with a table
+    indicating the annual growth rate and annual average mean-base
+    capacity utilization for each state. Management wants you to pick
+    three of these five states to start operations base only on your
+    analysis. explain your reasoning. Are there any states that are
+    dominated by other states based only on the growth vs. utilization
+    metrics? Explain.
+
+```{r warning=FALSE}
+MC %>%                                   
+  group_by(State) %>%
+  mutate(mean_dem = (lag(level,1)+lag(slope,1))*lag(season,12)) %>%
+  filter(Month >= ym("2018 Jan")) %>%
+  mutate(max_dem = (max(mean_dem))) %>%
+  mutate(util = (mean_dem/max_dem)*100) %>%
+  mutate('Average Capacity Utilisation' = mean(util)) -> mc_util
+mc_util
+```
+
+```{r}
+mc_util %>%  
+  as_tibble %>%
+  group_by(State) %>%
+  summarise('Average Capacity Utilisation' = mean(util)) -> mc_util_fin
+
+mc_util_fin
+```
+
+```{r warning=FALSE}
+mc_growth$'Average Capacity Utilisation' <- mc_util_fin$'Average Capacity Utilisation'
+
+mc_growth$ranking_state = rank(-mc_growth$growth_rate)
+mc_growth$util_rank = rank(-mc_growth$'Average Capacity Utilisation')
+mc_growth$Avg_Rank = mc_growth$ranking_state*0.5 + mc_growth$util_rank*0.5
+mc_growth
+```
+
+Ranking based on growth metric:
+
+1.  Australian Capital Territory
+2.  Victoria
+3.  New South Wales
+4.  Western Australia
+5.  Queensland
+
+Ranking based on utilization metric:
+
+1.  Western Australia
+2.  Queensland
+3.  Australian Capital Territory
+4.  New South Wales
+5.  Victoria
+
+From the above outputted table, the selected states are **Australian
+Capital Territory, Western Australia and New South Wales**
+
+This selection has been made based on:
+
+1.  Average Rank column
+
+2.  We see that even though Victoria has promising growth potential, it
+    is lacking when it comes to utilization
+
+3.  Similarly, Queensland shows promising utilization but lacking the
+    growth potential
+
+4.  Hence, the most intuitive pick for the third state would be New
+    South Wales
+
+### Part II. Estimating Downside Risk in Capacity Utilization
+
+After looking at your analysis and considering a number of additional
+factors not included in your analysis, management decided to narrow
+their prospecting to New South Wales, Western Australia and Victoria,
+and are asking for a more detailed analysis of the capacity utilization
+risk. To estimate this risk, they are asking you to use the actual
+state-wide sales level as an index of what would be the company's sales,
+and assume that the actual system capacity will be built as the 95%
+quantile of the forecasted demand. Management is tasking you to estimate
+the average capacity utilization and the downside capacity utilization
+risk for each state. The following questions guide you through this
+analysis:
+
+5.  Using the training and testing sets specified below, fit the best
+    ETS and ARIMA models for the sales in each of these three states.
+    Comment on the selection of a forecasting model for each state based
+    on the validity, accuracy and information criteria for each model.
+
+```{r}
+# Break into Training and Testing sets.
+
+S <- R %>% 
+  filter(State == "New South Wales" |
+         State == "Western Australia" |
+         State == "Victoria")
+
+TR <- S %>% 
+  filter(Month >= yearmonth("2000 Jan"),
+         Month <= yearmonth("2017 Dec"))
+TE <- S %>% 
+  filter(Month >= yearmonth("2018 Jan"))
+
+model_eval <- TR %>% model(ets_model = ETS(Sales),
+                        arima_model = ARIMA(Sales))
+model_eval %>% glance()
+```
+
+Based on AIC, AICc and BIC - Arima models seem to performing better for
+all the three states
+
+```{r}
+forecast_mod <- model_eval %>% forecast(h = 12)
+
+rbind(model_eval %>% accuracy(), 
+            forecast_mod %>% accuracy(data = TE))
+```
+
+Based on Out-of-sample MAPE, Arima Model performs better for Victoria
+and New South Wales whereas ETS performs better for Western Australia
+
+After listening to your arguments, and considering other subjective
+factors, your supervisor ask you to select the ARIMA model you obtained
+for the states of Western Australia and Victoria, but she prefers the
+ETS model for New South Whales. Use the above models to answer the
+following questions.
+
+6.  Fit the actual models selected as the best ARIMA and ETS (see above)
+    and re-fit these models using all the available data (i.e, the **S**
+    data set), and then prepare a 12-month ahead forecast for each
+    state. Report the forecast and the 80% and 90% confidence intervals
+    for each state.
+
+```{r}
+
+model_WA = S %>% filter(State=='Western Australia') %>% model(model_ar = ARIMA(Sales ~ pdq(2,0,0) + PDQ(0,1,2)))
+    
+model_Vic = S %>% filter(State=='Victoria') %>% model(model_ar = ARIMA(Sales ~ pdq(1,0,1) + PDQ(1,1,2)))
+
+model_SW = S %>% filter(State=='New South Wales') %>% model(model_ets = ETS(Sales ~ error('M') + trend('Ad') +season('M')))
+    
+forecast_WA = model_WA %>% forecast(h=12)
+forecast_Vic = model_Vic %>% forecast(h=12)
+forecast_SW = model_SW %>% forecast(h=12)
+
+f_agg = bind_rows(forecast_WA, forecast_Vic, forecast_SW)
+f_agg %>% hilo(level =c(80,90)) %>%
+  unpack_hilo("80%") %>% unpack_hilo("90%")
+```
+
+7.  Using the forecasting models in Question 6, assume that your company
+    will build capacity up to 95% of the maximum demand forecast for the
+    following 12 months. That is, where is the maximum 95% quantile of the demand forecasts for
+    the following 12 months. Then obtain the downside risk capacity
+    utilization risk as is the demand corresponding to the 5% quantile of
+    the sales forecast, and then, using the monthly downside capacity
+    utilization obtain the average downside utilization as
+    Report the utilization calculation for each of
+    the three states. 
+```{r}
+#Western Australia
+WA_avg = f_agg %>% filter(State=='Western Australia') %>% mutate(Quant_95 = quantile(Sales, 0.95), Quant_05 = quantile(Sales, 0.05), CAP=max(Quant_95), DUR=Quant_05/CAP * 100) %>% as_tibble() %>%
+  group_by(State) %>% summarise(DURmean = mean(DUR))
+
+#Victoria
+Vic_avg = f_agg %>% filter(State=='Victoria') %>% mutate(Quant_95 = quantile(Sales, 0.95), Quant_05 = quantile(Sales, 0.05), CAP=max(Quant_95), DUR=Quant_05/CAP * 100) %>% as_tibble() %>%
+  group_by(State) %>% summarise(DURmean = mean(DUR))
+
+#New South Wales
+NSW_avg = f_agg %>% filter(State=='New South Wales') %>% mutate(Quant_95 = quantile(Sales, 0.95), Quant_05 = quantile(Sales, 0.05), CAP=max(Quant_95), DUR=Quant_05/CAP * 100)  %>% as_tibble() %>%
+  group_by(State) %>% summarise(DURmean = mean(DUR))
+
+#Aggregate
+rbind(WA_avg, Vic_avg, NSW_avg)
+```
+
+8.  After examining your analysis in Question (7) management made two
+    decisions: First, Building capacity up to the 95% quantile of demand
+    was too considered too risky and affected expected profitability,
+    and ask you to redefine the capacity at the 70% quantile. and second, they decided that the downside
+    risk at the 5% quantile was to conservative, and ask you to
+    re-calculate the figures you reported using a downside demand
+    estimated at the 10% quantile of the demand forecast and repeat your
+    calculations in Question 7. Comment on the likely effect of the
+    capacity reduction decision on the capacity utilization at the
+    median demand. Explain the difference with the
+    utilization quantities estimated in Question (4)
+
+```{r}
+bind_rows(forecast_WA,forecast_Vic,forecast_SW) %>%
+  mutate(Quant_70 = quantile(Sales, 0.70)) %>%
+  group_by(State) %>%
+  mutate(max_quant_70 = max(Quant_70)) %>%
+  mutate(DUR = quantile(Sales, 0.10)/max_quant_70) %>%
+  as_tibble %>%
+  group_by(State) %>%
+  summarise(Mean_DUR = mean(DUR)*100)
+```
+
+1.  Average downside utilization increase when the capacity was at 70%
+    quantile and downside risk was raised to 10% from the previous value
+    of 5%
+2.  In conclusion, reduction in capacity led to increase in capacity
+    utilization and median demand
+
+```{r}
+bind_rows(forecast_WA,forecast_Vic,forecast_SW) %>%
+  mutate(Quant_70 = quantile(Sales, 0.70)) %>%
+  group_by(State) %>%
+  mutate(max_quant_70 = max(Quant_70)) %>%
+  mutate(DUR = quantile(Sales, 0.50)/max_quant_70) %>%
+  as_tibble %>%
+  group_by(State) %>%
+  summarise(Mean_DUR = mean(DUR)*100)
+```
+
+1.  Table above, mean capacity utilization at median demand with 70%
+    quantile capacity
+2.  Table in Q4, mean capacity utilization at mean demand with capacity
+    equal to mean demand
+
+Hence Q4 shows better utilization values.

@@ -1,0 +1,1026 @@
+---
+title: "Take home Assignment v1"
+author: "Muskaan Singhania"
+date: "2022-07-30"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+##Chapter 2 - Question 10
+(a) To begin, load in the Boston data set. The Boston data set is part of the ISLR2 library in R.
+How many rows are in this data set? How many columns? What do the rows and columns represent?
+```{r}
+ library(MASS)
+ Boston
+ ?Boston
+nrow(Boston)
+ncol(Boston)
+names(Boston)
+attach(Boston)
+```
+### (b) Make some pairwise scatterplots of the predictors (columns) in this data ###set. Describe your findings.
+```{r}
+par(mfrow = c(2, 2))
+plot(age, nox)
+plot(age, medv)
+plot(ptratio, lstat)
+plot(lstat, crim)
+```
+Findings: From the above plots 
+a. nox and age are positively correlated 
+b. medv and age are not that correlated
+c. lstat and pratio are not correlated 
+d. lsat and crim are positively correlated
+
+Chapter 2 \| Question 10 \| Part c
+
+```{r}
+plot(Boston$nox, Boston$crim)
+```
+
+As the nitrogen oxide content crosses a certain threshold of 0.6, crime rate increases drastically suggesting areas with high crime rates tend to have high nox content. This maybe due to the fact that these areas are not well regulated areas and hence crime rates and nox are high.
+
+```{r}
+plot(Boston$age,Boston$crim)
+
+```
+
+As the proportion of older units increases, crime rate also increases. This maybe due to the fact that the areas with higher concentration of older building leads to lower building prices attracting people with low income and people with low income might also comprise of criminals.
+
+```{r}
+plot(Boston$dis,Boston$crim)
+
+```
+
+Plot suggests that the crime rate is high for the areas within 3 weighted mean distance to five Boston employment centers. [Add a reason]
+
+```{r}
+plot(Boston$lstat,Boston$crim)
+
+```
+
+Plot suggests a non-linear trend between criminal rate and lstat. As the lstat increases, crime rate increases. This may be due to the fact that if the lower status of population comprises of more criminals and when lstat increases, number of criminals in that locality also increase leading to more crime rate.
+
+```{r}
+plot(Boston$medv,Boston$crim)
+
+```
+
+There is an non-linear inverse relationship b/w criminal rate and median value of homes. Criminal rate decreases steeply till medv = 25 and then flat-lines. This maybe due to the fact that areas with higher medv are better localities and people living there are of higher income and hence lesser criminals. Also, security in localities with high medv could be better resulting in lower crime rates.
+
+```{r}
+
+```
+
+Chapter 2 \| Question 10 \| Part d
+
+```{r}
+boxplot(Boston$crim)
+```
+
+Criminal rate:
+
+As we can see from the box plot, there are many suburbs where the crime rates are more than Q3 + 1.5 IQR suggesting these points are outliers.
+
+```{r}
+boxplot(Boston$tax)
+```
+
+Property tax:
+
+Here we do not see any data points that are above Q3 + 1.5 IQR or less than Q1 - 1.5 IQR suggesting there aren't any outliers.
+
+```{r}
+boxplot(Boston$ptratio)
+```
+
+From the boxplot, we can see that there are 2 suburbs which have pupil-teacher ratio less than Q1-1.5IQR, suggesting these suburbs are outliers.
+
+Chapter 2 \| Question 10 \| Part e
+
+```{r}
+sum(Boston$chas == 1)
+```
+
+There are 35 suburbs that bound the Charles river.
+
+Chapter 2 \| Question 10 \| Part e
+
+```{r}
+median(Boston$ptratio)
+
+```
+
+Median pupil-teacher ratio among the towns in this data set = 19.05
+
+Chapter 2 \| Question 10 \| Part (f)
+
+```{r}
+
+```
+
+Chapter 2 \| Question 10 \| Part (g)
+
+```{r}
+sum(Boston$rm > 7)
+```
+
+There are 64 suburbs average more than 7 rooms per dwelling.
+
+```{r}
+sum(Boston$rm > 8)
+```
+
+There are 13 suburbs average more than 8 rooms per dwelling.
+
+plot(Boston\$rm,Boston\$medv)
+
+```{r}
+plot(Boston$rm,Boston$medv)
+```
+
+```{r}
+subset_greater_8 <- Boston[Boston$rm>8,]
+```
+
+```{r}
+mean(subset_greater_8$medv)
+
+```
+
+```{r}
+subset_less_8 <- Boston[Boston$rm<=8,]
+```
+
+```{r}
+mean(subset_less_8$medv)
+```
+
+plot(Boston\$rm,Boston\$lstat)
+
+1.  The mean median value of owner-occupied homes in suburbs with average number of rooms per dwelling \>8 (44.2) is more than twice than rhe mean median value of owner-occupied homes in suburbs \<=8 (21.96) "rm" indicating that suburbs with rm\>8 have very high median house prices.
+
+    ```{r}
+    plot(Boston$rm,Boston$lstat)
+    ```
+
+    ```{r}
+    mean(Boston$lstat)
+    ```
+
+    ```{r}
+    mean(subset_greater_8$lstat)
+    ```
+
+2.  Suburbs with \> 8 average number of rooms per dwelling have \~4% (on average) proportion of lower status people, and the avg of the dataset is \~12% which is almost 3 times higher. This makes sense as the medv value for such suburbs are quite high as discussed in previous point.
+
+Chapter 3 \| Question 15 \| Part (a)
+
+```{r}
+lm.fit=lm(crim~age,data=Boston)
+summary(lm.fit)
+```
+
+```{r}
+plot(Boston$crim,Boston$age)
+```
+
+Although age explain less than 15% variance in crim, 'age' seems to have a statistically significant coefficient in predicting 'crim'.
+
+```{r}
+lm.fit=lm(crim~zn,data=Boston)
+summary(lm.fit)
+```
+
+Although zn explain less than 5% variance in crim, 'zn' seems to have a statistically significant coefficient in predicting 'crim'.
+
+```{r}
+lm.fit=lm(crim~indus,data=Boston)
+summary(lm.fit)
+```
+
+Although indus explain less than \~15% variance in crim, 'indus' seems to have a statistically significant coefficient in predicting 'crim'.
+
+```{r}
+lm.fit=lm(crim~chas,data=Boston)
+summary(lm.fit)
+```
+
+'chas' does not have a statistically significant coefficient and also explains very less variance in 'crim'
+
+```{r}
+lm.fit=lm(crim~nox,data=Boston)
+summary(lm.fit)
+```
+
+'nos' explains \~17% variance in 'crim'. Additionally, they are positively correlated which a statistically significant positive coefficient.
+
+```{r}
+lm.fit=lm(crim~rm,data=Boston)
+summary(lm.fit)
+```
+
+'rm' explain less than 5% variance in 'crim'. 'rm' has a negative correlation with 'crim' with a statistically significant coefficient.
+
+```{r}
+lm.fit=lm(crim~dis,data=Boston)
+summary(lm.fit)
+```
+
+'dis' explain \~15% variance in 'crim'. 'dis' has a negative correlation with 'crim' with a statistically significant negative coefficient.
+
+```{r}
+lm.fit=lm(crim~rad,data=Boston)
+summary(lm.fit)
+
+```
+
+'rad' explain \~40% variance in 'crim'. 'rad' has a positive correlation with 'crim' with a statistically significant positive coefficient.
+
+```{r}
+lm.fit=lm(crim~tax,data=Boston)
+summary(lm.fit)
+```
+
+Tax rate explains \~33% variation in crim with a positive correlation. It has a statistically significant positive coefficient.
+
+```{r}
+lm.fit=lm(crim~ptratio,data=Boston)
+summary(lm.fit)
+```
+
+ptratio explains \<10% variation in crim with a positive correlation. It has a statistically significant positive coefficient.
+
+```{r}
+lm.fit=lm(crim~black,data=Boston)
+summary(lm.fit)
+```
+
+black is inversely proportional to crim with a statistically significant coefficient and explains \~15% variance in crim.
+
+```{r}
+lm.fit=lm(crim~lstat,data=Boston)
+summary(lm.fit)
+```
+
+lstat has a positive correlation with crim with a statistically significant coefficient and explains \~20% variance in crim.
+
+```{r}
+library(ggplot2)
+p <- ggplot(Boston, aes(medv, crim)) + geom_point()
+
+# Add regression line
+#p + geom_smooth(method = lm)
+  
+# loess method: local regression fitting
+p + geom_smooth(method = "loess")
+```
+
+```{r}
+lm.fit=lm(crim~medv,data=Boston)
+summary(lm.fit)
+```
+
+medv has a negative correlation with crim with a statistically significant coefficient and explains \~15% variance in crim.
+
+Chapter 3 \| Question 15 \| Part (c)
+
+```{r}
+lm.fit=lm(crim~.,data=Boston)
+summary(lm.fit)
+```
+
+These set of features explain \~44% variance in 'crim', with 5 features with statistically significant coefficients at significance level (alpha) = 0.05
+
+Here are the variables for which we can reject the null hypothesis H0 : βj = 0 at significance level (alpha) = 0.05
+
+1.  zn
+
+2.  dis
+
+3.  rad
+
+4.  black
+
+5.  medv
+
+Chapter 3 \| Question 15 \| Part (c)
+
+```{r}
+
+matrix_coef <- summary(lm.fit)$coefficients
+my_estimates <- matrix_coef[ , 1]
+
+features = names(Boston)
+coef_list <- vector()
+feat_list <- vector()
+
+features <- features[! features %in% c('crim')]
+
+for (feature in features) {
+  
+  coef <- summary(lm(paste0('crim~', feature),data=Boston))$coefficients[-1,1]
+  coef_list <- append(coef_list, coef)
+  feat_list <- append(feat_list, feature)
+  
+}
+
+my_estimates <- my_estimates[-1]
+plot(coef_list, my_estimates)
+```
+
+Earlier, almost all the features had a statistically significant coefficient in predicting 'crim' when regression was conducted one variable at a time. But when we consider all the variables, there are only a few variables with statistically significant coefficients.
+
+**Chapter 3 \| Question 15 \| Part (d)**
+
+```{r}
+library(ggplot2)
+p <- ggplot(Boston, aes(medv, crim)) + geom_point()
+
+# loess method: local regression fitting
+p + geom_smooth(method = "loess")
+```
+
+From the graph, we can see that crim and medv hold a non-linear trend when we fir a smooth line.
+
+```{r}
+poly1 = lm(crim~poly(medv,3), data=Boston)
+summary(poly1)
+```
+
+Additionally, we can see that all th polynomial degrees for medv are statistically significant with an adjusted R sq of \~42%
+
+```{r}
+lmfit = lm(crim~medv, data=Boston)
+summary(lmfit)
+```
+
+Now, here we can see that when we fit a liner model, **the R sq is \~15% but on non-linear model it's \~42% which implies that non liner model fits the data better than the linear model.**
+
+Chapter 6 \| Question 9 \| Part (a)
+
+```{r}
+
+#performing the test-train split. Test = 20% of total sample
+library(ISLR)
+
+set.seed(10)
+
+train_index=sample(c(TRUE ,FALSE), nrow(College),rep=TRUE, prob=c(0.8,0.2))
+college_train=College[train_index,]
+college_test=College[!train_index,]
+```
+
+Chapter 6 \| Question 9 \| Part (b)
+
+```{r}
+
+#fitting the model on train
+model1 = lm(Apps~., data=college_train)
+summary(model1)
+
+```
+
+```{r}
+#predicitng the model on test and getting the error
+test_pred <- predict(model1, newdata = college_test)
+rms_error <- sqrt(mean((test_pred - college_test$Apps)^2))
+print('Test Error (Root mean squared error) obtained is: ')
+rms_error
+```
+
+**Chapter 6 \| Question 9 \| Part (c)**
+
+```{r}
+library(glmnet)
+#fit ridge regression model
+
+train_x <-model.matrix(Apps ~., data = college_train)[,-1]
+train_y <-college_train$Apps
+
+cv_model <- cv.glmnet(train_x, train_y, alpha = 0)
+best_lambda <- cv_model$lambda.min
+```
+
+```{r}
+best_model_ridge <- glmnet(train_x, train_y, alpha = 0, lambda = best_lambda)
+
+test_x <-model.matrix(Apps ~., data = college_test)[,-1]
+y_predicted <- predict(best_model_ridge, s = best_lambda, newx = test_x)
+rms_error <- sqrt(mean((y_predicted - college_test$Apps)^2))
+print('Test Error (Root mean squared error) obtained for Ridge Model is: ')
+rms_error
+
+```
+
+**Chapter 6 \| Question 9 \| Part (d)**
+
+```{r}
+
+cv_model <- cv.glmnet(train_x, train_y, alpha = 1)
+best_lambda <- cv_model$lambda.min
+best_model_lasso <- glmnet(train_x, train_y, alpha = 1, lambda = best_lambda)
+y_predicted <- predict(best_model_lasso, s = best_lambda, newx = test_x)
+rms_error <- sqrt(mean((y_predicted - college_test$Apps)^2))
+print('Test Error (Root mean squared error) obtained for LASSO Model is: ')
+rms_error
+```
+
+```{r}
+coef(best_model_lasso)
+```
+
+Chapter 6 \| Question 9 \| Part (e)
+
+```{r}
+library(pls)
+
+pcr_model <- pcr(Apps~., data=college_train, scale=TRUE, validation="CV")
+validationplot(pcr_model, val.type="MSEP")
+
+```
+
+```{r}
+pcr_pred <- predict(pcr_model, test_x, ncomp=5)
+rmse <- sqrt(mean((pcr_pred - college_test$Apps)^2))
+print('Test Error (Root mean squared error) obtained for PCR Model is: ')
+rmse
+```
+
+Chapter 6 \| Question 9 \| Part (f)
+
+```{r}
+library(pls)
+pls_model <- plsr(Apps~., data=college_train, scale=TRUE, validation="CV")
+validationplot(pcr_model, val.type="MSEP")
+```
+
+```{r}
+pls_pred <- predict(pls_model, test_x, ncomp=5)
+rmse <- sqrt(mean((pls_pred - college_test$Apps)^2))
+print('Test Error (Root mean squared error) obtained for PLS Model is: ')
+rmse
+```
+
+Chapter 6 \| Question 9 \| Part (g)
+
+```{r}
+### add code here
+```
+
+Chapter 6 \| Question 11 \| Part (a) and Part (b)
+
+```{r}
+library(MASS)
+library(glmnet)
+
+#test-train split to be used across models
+train_index=sample(c(TRUE ,FALSE), nrow(Boston),rep=TRUE, prob=c(0.8,0.2))
+boston_train=Boston[train_index,]
+boston_test=Boston[!train_index,]
+```
+
+```{r}
+#Model 1: Linear regression with all the variables
+linear_model2 = lm(crim~., data = boston_train)
+test_pred <- predict(linear_model2, newdata = boston_test)
+rms_error_linear <- sqrt(mean((test_pred - boston_test$crim)^2))
+print('Test Error (Root mean squared error) obtained is: ')
+#summary(linear_model2)
+rms_error_linear
+```
+
+When we fit a linear regression model considering all the features, we get a test RMSE of 4.815
+
+Adjusted R sq = 0.4002
+
+```{r}
+#Model 2: Using best features, getting the optimal # and names of the features
+
+library(leaps)
+
+regfit.full=regsubsets (crim~.,Boston, nvmax=13)
+sum_var = summary(regfit.full)
+
+par(mfrow=c(2,2))
+plot(sum_var$rss ,xlab="Number of Variables ",ylab="RSS",
+type="l")
+plot(sum_var$adjr2 ,xlab="Number of Variables ",
+ylab="Adjusted RSq",type="l")
+
+
+```
+
+From the above graph, we can see that the adjusted R sq reached peak at 9 variables and the RSS declines till number of vars=9 and then flatlines. So we can consider only the 9 best features into our model.
+
+Here is the linear regression model just considering those 9 best features
+
+```{r}
+
+get_model_formula <- function(id, object, outcome){
+  models <- object$which[id,-1]
+  predictors <- names(which(models == TRUE))
+  predictors <- paste(predictors, collapse = "+")
+  as.formula(paste0(outcome, "~", predictors))
+}
+
+linear_model3 = lm(get_model_formula(9, sum_var, "crim"), data = boston_train)
+
+test_pred2 <- predict(linear_model3, newdata = boston_test)
+rms_error_linear2 <- sqrt(mean((test_pred2 - boston_test$crim)^2))
+print('Test Error (Root mean squared error) obtained is: ')
+#summary(linear_model2)
+rms_error_linear2
+
+```
+
+When we subset the features and fit a linear regression model, we can see that the test RMSE has decreased from 4.815 to 4.709 suggesting there was some potential overfitting when we considered all the variables and removing variables reduced the variance in the model. Additionally, we can also see that the Adjusted R Sq has increased slightly (from 0.4002 to 0.4023)
+
+Hence, this model with a subset of 9 features works better than considering all the 13 features.
+
+Now, lets try lasso to check if we can regularize our model better...
+
+```{r}
+
+# Model 3: ridge model
+train_x <-model.matrix(crim ~., data = boston_train)[,-1]
+train_y <-boston_train$crim
+
+#cross validation to get the optimal lambda value
+cv_model <- cv.glmnet(train_x, train_y, alpha = 0)
+best_lambda <- cv_model$lambda.min
+
+#fitting the ridge model
+best_model_ridge <- glmnet(train_x, train_y, alpha = 0, lambda = best_lambda)
+
+#predicting crim on test data based on fitted model
+test_x <-model.matrix(crim ~., data = boston_test)[,-1]
+y_predicted <- predict(best_model_ridge, s = best_lambda, newx = test_x)
+
+#calculating the RMSE on test data
+rmse_ridge <- sqrt(mean((y_predicted - boston_test$crim)^2))
+print('Test Error (Root mean squared error) obtained for Ridge Model is: ')
+rmse_ridge
+```
+
+The test RMSE for Model 3 is 4.791, hence our Model 2 is still the best in terms of test RMSE.
+
+```{r}
+
+# Model 4: LASSO model
+train_x <-model.matrix(crim ~., data = boston_train)[,-1]
+train_y <-boston_train$crim
+
+#cross validation to get the optimal lambda value
+cv_model <- cv.glmnet(train_x, train_y, alpha = 1)
+best_lambda <- cv_model$lambda.min
+
+#fitting the ridge model
+best_model_lasso <- glmnet(train_x, train_y, alpha = 1, lambda = best_lambda)
+
+#predicting crim on test data based on fitted model
+test_x <-model.matrix(crim ~., data = boston_test)[,-1]
+y_predicted <- predict(best_model_lasso, s = best_lambda, newx = test_x)
+
+#calculating the RMSE on test data
+rmse_lasso <- sqrt(mean((y_predicted - boston_test$crim)^2))
+print('Test Error (Root mean squared error) obtained for LASSO Model is: ')
+rmse_lasso
+
+```
+
+The test RMSE for Model 4 is 4.844, hence our Model 2 is still the best in terms of test RMSE.
+
+```{r}
+# Model 5: PCR Model
+
+# fitting the pcr model
+pcr_model <- pcr(crim~., data=boston_train, scale=TRUE, validation="CV")
+
+#plotting the graph to get optimal n_components
+validationplot(pcr_model, val.type="MSEP")
+
+#predicting crim on test data
+pcr_pred <- predict(pcr_model, test_x, ncomp=3)
+
+#calculating test RMSE
+rmse_pcr <- sqrt(mean((pcr_pred - boston_test$crim)^2))
+print('Test Error (Root mean squared error) obtained for PCR Model is: ')
+rmse_pcr
+```
+
+Form the graph, selected the optimal n_components = 3. For Model 5, the test RMSE is 4.953 hence our Model 2 is best in terms of RMSE.
+
+Let's plot the RMSE in bar graph and compare.
+
+```{r}
+#add a bar graph here
+```
+
+**Chapter 6 \| Question 11 \| Part (c)**
+
+So I have selected a subset of 9 features (below) to predict the crime rate in Boston dataset to create a linear regression model. When all the features were selected, the model gave a test RMSE of 4.815. But when I created a model just using the listed features, the test RMSE reduced to 4.709 suggesting there was potential overfitting when all the variables were considered. Also, the adjusted R Squared improved a little bit. Hence, only these subset of 9 features are considered for the final model.
+
+Add the list of features.
+
+**Chapter 8 \| Question 8 \| Part (a)**
+
+```{r}
+library(tree)
+library(ISLR)
+attach(Carseats)
+
+# creating the test train split. Train set = 30%
+set.seed(10)
+
+train_index=sample(c(TRUE ,FALSE), nrow(Carseats),rep=TRUE, prob=c(0.7,0.3))
+carseats_train=Carseats[train_index,]
+carseats_test=Carseats[!train_index,]
+
+#carseats_train = sample(1:nrow(Carseats), nrow(Carseats)/2)
+
+```
+
+**Chapter 8 \| Question 8 \| Part (b)**
+
+```{r}
+
+tree_carseats=tree(Sales~.,carseats_train)
+summary(tree_carseats)
+
+```
+
+```{r}
+yhat=predict (tree_carseats ,newdata=carseats_test)
+carseats_test_y=carseats_test$Sales
+plot(yhat ,carseats_test_y)
+abline (0,1)
+mean((yhat -carseats_test_y)^2)
+```
+
+Test MSE obtained through tress is **4.017**
+
+**Chapter 8 \| Question 8 \| Part (c)**
+
+```{r}
+cv_carseats_trees=cv.tree(tree_carseats)
+plot(cv_carseats_trees$size ,cv_carseats_trees$dev ,type='b')
+```
+
+```{r}
+prune_carseats_trees=prune.tree(tree_carseats ,best=6)
+plot(prune_carseats_trees)
+text(prune_carseats_trees , pretty =0)
+```
+
+```{r}
+yhat2=predict (prune_carseats_trees ,newdata=carseats_test)
+#carseats_test_y=carseats_test$Sales
+plot(yhat2 ,carseats_test_y)
+abline (0,1)
+mean((yhat2 -carseats_test_y)^2)
+```
+
+Post pruning, we see that the test MSE has increased to **4.86.**
+
+**Chapter 8 \| Question 8 \| Part (d)**
+
+```{r}
+library(randomForest)
+
+bag_carseats= randomForest( Sales~.,data=carseats_train, mtry=10,importance =TRUE)
+bag_carseats
+yhat.bag = predict (bag_carseats , newdata=carseats_test)
+plot(yhat.bag , carseats_test_y)
+abline (0,1)
+mean((yhat.bag -carseats_test_y)^2)
+```
+
+```{r}
+mean((yhat.bag -carseats_test_y)^2)
+```
+
+```{r}
+importance(bag_carseats)
+```
+
+```{r}
+varImpPlot(bag_carseats)
+```
+
+**Chapter 8 \| Question 8 \| Part (e)**
+
+```{r}
+rf_carseats= randomForest(Sales~.,data=carseats_train, mtry=8, importance =TRUE)
+yhat.rf = predict(rf_carseats ,newdata=carseats_test)
+mean((yhat.rf-carseats_test_y)^2)
+```
+
+```{r}
+importance(rf_carseats)
+```
+
+**Chapter 8 \| Question 11 \| Part (a)**
+
+carvan_encoded\$Purchase \<-ifelse(carvan_encoded\$Purchase=='Yes',1,0)
+
+```{r}
+#creating test and train split on caravan data
+
+library(ISLR)
+
+attach(Caravan)
+
+#creating the duplicate of Carvan dataset for encoding
+carvan_encoded <-Caravan
+carvan_encoded$Purchase <-ifelse(carvan_encoded$Purchase=='Yes',1,0)
+carvan_encoded$Purchase
+
+#selecting first 1000 rows
+train=1:1000
+
+carvan_train= carvan_encoded[train ,]
+carvan_test= carvan_encoded[-train ,]
+
+#used in prediction
+carvan_test_y = carvan_encoded$Purchase[-train]
+
+```
+
+**Chapter 8 \| Question 11 \| Part (b)**
+
+```{r}
+library(gbm)
+
+carvan_boost=gbm(Purchase~.,data=carvan_train,n.trees=5000, distribution="bernoulli", interaction.depth =4, shrinkage =0.01,verbose=F)
+
+#feature importance
+summary(carvan_boost)
+
+```
+
+**Chapter 8 \| Question 11 \| Part (c)**
+
+```{r}
+#predicting on test data
+
+yhat_caryan_boost=predict (carvan_boost ,newdata =carvan_test,n.trees=5000, type = 'response')
+
+#setting the classification threshold to 0.2
+yhat_caryan_boost2 <- ifelse(yhat_caryan_boost>0.2,1,0)
+
+#confusion matrix
+cf_boost <- table(yhat_caryan_boost2, carvan_test_y)
+```
+
+```{r}
+
+predicted_purchase = cf_boost[2,2] + cf_boost[2,1]
+TP = cf_boost[2,2]
+precision = TP/predicted_purchase
+print('Fraction of the people predicted to make a purchase do in fact make one: ')
+print(precision)
+
+```
+
+```{r}
+library(class)
+# applying KNN
+standardized.X= scale(Caravan [,-86])
+train=1:1000
+train.X= standardized.X[train ,]
+test.X= standardized.X[-train ,]
+train.Y=Purchase [train]
+test.Y=Purchase [-train]
+set.seed(1)
+knn.pred=knn(train.X,test.X,train.Y,k=3)
+mean(test.Y!=knn.pred)
+#mean(test.Y!="No")
+
+
+
+```
+
+```{r}
+#confusion matrix
+cf_knn <- table(knn.pred, test.Y)
+predicted_purchase_knn = cf_knn[2,2] + cf_knn[2,1]
+TP_knn = cf_knn[2,2]
+precision_knn = TP_knn/predicted_purchase_knn
+print('Fraction of the people predicted to make a purchase do in fact make one: ')
+print(precision_knn)
+```
+
+The precision of KNN model with k=3 is 0.2066 which is higher than what we got from boosting model where the precision was \~0.13.
+
+**Chapter 10 \| Question 7**
+
+```{r}
+library (keras)
+library(tensorflow)
+library(ISLR)
+#install_tensorflow()
+
+default_encoded <-Default
+default_encoded$default <-ifelse(default_encoded$default=='Yes',1,0)
+default_encoded$student <-ifelse(default_encoded$student=='Yes',1,0)
+
+x <- model.matrix (default ~ . - 1, data = default_encoded) %>% scale ()
+y <- default_encoded$default
+
+```
+
+```{r}
+modnn <- keras_model_sequential () %>%
+layer_dense (units = 10, activation = "relu",
+input_shape = ncol (x)) %>%
+layer_dropout (rate = 0.4) %>%
+layer_dense (units = 1)
+```
+
+```{r}
+modnn %>% compile (loss = "mse ", optimizer = optimizer_rmsprop (), metrics = list (" mean_absolute_error "))
+```
+
+```{r}
+n <- nrow (default_encoded)
+ntest <- trunc (n / 3)
+testid <- sample (1:n, ntest)
+ 
+history <- modnn %>% fit (
+x[-testid , ], y[-testid], epochs = 500, batch_size = 100,
+validation_data = list (x[testid , ], y[testid])
+)
+```
+
+```{r}
+npred <- predict (modnn , x[testid , ])
+mean ( abs (y[testid] - npred))
+```
+
+**Problem 1: Beauty Pays!**
+
+```{r}
+
+#loading the dataframe
+
+df_beauty <-read.csv(file = 'C:/Users/shrey/Downloads/MSBA/Summer/Intro to Machine Learning/Take home assignment 1/BeautyData.csv')
+
+```
+
+**Problem 1 \| Part a**
+
+```{r}
+#fitting a linear model
+
+lm_model_1 <-lm(CourseEvals~.,data = df_beauty)
+summary(lm_model_1)
+
+```
+
+```{r}
+lm_model_2 <-lm(CourseEvals~BeautyScore  ,data = df_beauty)
+summary(lm_model_2)
+```
+
+**Insights:**
+
+From the above linear regression results, we can see that when we try to predict course ratings using all the features, we see that BeautyScore has a positive correlation with CourseEvals with a statistically significant coefficient. This means that keeping the other variables or here "other determinants" constant, beauty has a direct positive impact on CourseEvals.
+
+**Problem 1 \| Part b**
+
+***type and here***
+
+```{r}
+
+```
+
+**Problem 2 \| Part a**
+
+```{r}
+df_midcity <-read.csv(file = 'C:/Users/shrey/Downloads/MSBA/Summer/Intro to Machine Learning/Take home assignment 1/MidCity.csv')
+
+```
+
+```{r}
+#fitting the regression model
+
+lm_midcity_1 = lm(Price~., data= df_midcity)
+summary(lm_midcity_1)
+
+```
+
+**Answer 1:**
+
+As we can see from the linear regression output when considering all the features of the house is 'BrickYes' has a positive correlation with the house Price and has a statistically significant positive coefficient. This means that keeping all the features of the house constant, if the house is a brick house, it's price would be more.
+
+```{r}
+df_midcity$Neb_1 <- ifelse(df_midcity$Nbhd==1,1,0)
+df_midcity$Neb_3 <- ifelse(df_midcity$Nbhd==3,1,0)
+```
+
+```{r}
+drops <- c("Nbhd")
+df_midcity <- df_midcity[,!(names(df_midcity)%in% drops)]
+head(df_midcity)
+```
+
+```{r}
+#fitting the regression model post one hot encoding
+
+lm_midcity_1 = lm(Price~., data= df_midcity)
+summary(lm_midcity_1)
+```
+
+**Answer 2:**
+
+Post one-hot encoding of Nbhd column, I fit the linear regression model. From the model summary, we can see that Neb_3 i.e. if a house is in neighborhood 3 has a positive correlation with the house with a statistically significant positive coefficient. This means keeping all features constant, if a house belongs to neighborhood 3, it's price would be on an average **\$22,264 more than** the houses with same features not belonging to neighborhood 3.
+
+```{r}
+df_midcity$Brick <- ifelse(df_midcity$Brick=='Yes',1,0)
+df_midcity$Neb_3_brick <- df_midcity$Neb_3 * df_midcity$Brick
+```
+
+```{r}
+lm_midcity_2 = lm(Price~., data= df_midcity)
+summary(lm_midcity_2)
+```
+
+**Answer 3:**
+
+So I created an interaction term Neb_3\_brick which is a multiplication of Neb_3 and Brick column, essentially a flag for houses which are brick and are in neighborhood 3. Now, we can see that the interaction term i.e Neb_3\_brick , Brick and Neb_3 all have statistically significant positive coefficient i.e. they all have a positive impact on predicting the price. Also, the adjusted R Squared when we consider the interaction term has increased slightly from the previous model from 0.86 to 0.8656, which means that this model explains slightly higher variance in Price.
+
+Now, let's say there is a brick house A whose price is \$ X and it's not in Neighborhood 3 so Neb_3 = 0 and Neb_3\_brick = 0. Keeping all the other features constant, suppose that another house B belonged to Neb_3, then the cost of price will go up by the coefficient of Neb_3 i.e. \$17,933, and also since the interaction term Neb_3\_brick is also positive with statistically significant coefficient of \$10,192, the price would go further up by this amount.
+
+So in a nutshell, we can see that ***there is \$10,192 of extra premium for brick houses belonging to Neighborhood 3***.
+
+```{r}
+
+df_midcity_2 <-read.csv(file = 'C:/Users/shrey/Downloads/MSBA/Summer/Intro to Machine Learning/Take home assignment 1/MidCity.csv')
+
+```
+
+```{r}
+#if Neb_3 =0, then it belongs to either Neighbourhood 1 or 2 i.e. older neighbourhood
+
+df_midcity_2$Neb_3 <- ifelse(df_midcity_2$Nbhd==3,1,0)
+
+drops <- c("Nbhd")
+df_midcity <- df_midcity[,!(names(df_midcity)%in% drops)]
+
+```
+
+```{r}
+lm_midcity_3 = lm(Price~., data= df_midcity_2)
+summary(lm_midcity_3)
+```
+
+**Answer 4:**
+
+Model 1, where we considered Neighborhood 1 and Neighborhood 2 separately, the adjusted R Squared was 0.86 and Residual standard error: 10050.
+
+Model 4, where we combined Neighborhood 1 and Neighborhood 2, the adjusted R Squared was 0.86 and Residual standard error: 10050.
+
+Since the adjusted R Squared and Residual standard error are exactly the same in the two models, they have the same predictive ability and hence for the purposes of prediction, we can combine Neighborhood 1 and Neighborhood 2.
+
+```{r}
+
+```
+
+**Problem 3 \| Part a**
+
+It's a causality problem i.e. it could be the case that since there are more number of cops, the number of crimes decrease or it could be the case that since there are more crimes, more cops are deployed. Hence, we cannot just run a regression to see if crime and number of cops have a causal relationship until and unless we control for other variables that might explain the variance in number of crimes.
+
+**Problem 3 \| Part b**
+
+The researchers from UPENN were able to isolate the above effect by considering the following -
+
+1.  In Washington there are different levels of terrorist threat alerts, so basically if it's an orange alert, more cops are deployed to protect people from potential terrorist activities and it has nothing to do with the street crimes. So the researchers at UPENN just selected those orange alert days (where additional cops were deployed) to see if the number of cops are increased, do crime rate decrease and as a matter of fact, they did observe this relationship.
+
+2.  Now there could more factors that influence this relationship, i.e. what if since its an orange alert day maybe there are few people on the streets or maybe even criminals are afraid of the terrorist alert and don't commit crime on those days. We'll discuss how this was controlled for in the next part.
+
+**Problem 3 \| Part c**
+
+So the researchers at UPENN just considered the orange alert days which have high terror alert and hence more cops are deployed to control that. They observed a relationship that on such days, if more cops are deployed the street crime rate decreases. Now, it could be the case that since its a high terror alert day, less people come outside of their homes i.e. the number of victims reduces resulting into lower crimes. To control for this, they considered the METRO ridership to check if METRO ridership reduces during the orange alert days. Account this variables they observed that the METRO ridership does not reduce during the orange alert days and hence, the hypothesis that number of victims themselves reduces on orange alert days is incorrect. Hence, controlling for METRO ridership, they inferred that increasing the number of cops has an influence in reducing the crime rate.
+
+**Problem 3 \| Part d**
